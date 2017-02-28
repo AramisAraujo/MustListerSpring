@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp src/main/java/com/example:src/main/java/com/example/* MustListerSpringApplication
+web: java $JAVA_OPTS -Dserver.port=$PORT -jar /*.jar

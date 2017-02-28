@@ -1,1 +1,1 @@
-web: java -cp ./src/main/java/com/example/:./src/main/java/com/example/* v1.a1.server
+web: java -cp ./src/main/java/com/example/:./src/main/java/com/example/* MustListerSpringApplication

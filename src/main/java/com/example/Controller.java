@@ -38,11 +38,46 @@ public class Controller {
 	private final String TASK_LIST_PATH_SAMPLE = "taskList";
 	private final String JSON_EXTENSION = ".json";
 
+	
+	@CrossOrigin
+	@RequestMapping("/initialList")
+	public void createInitialProps(){
+		
+		Subtask st = new Subtask("Study Math", false);
+		subTaskRepo.save(st);
+		
+		List<Subtask> stL = new ArrayList<Subtask>();
+		stL.add(st);
+		
+		List<String> empty = new ArrayList<String>();
+		
+		Task t1= new Task("Red", "Have some fun", "Arial", false, empty, "high", "", stL);
+		Task t2 = new Task("Orange", "Make some neat CSS", "Arial", false, empty, "medium", "", null);
+		Task t3 = new Task("Blue", "Study some more", "Arial", false, empty, "low", "", null);
+		
+		taskRepo.save(t1);
+		taskRepo.save(t2);
+		taskRepo.save(t3);
+
+		List<Task>tl = new ArrayList<Task>();
+		
+		tl.add(t1);
+		tl.add(t2);
+		tl.add(t3);
+		
+		TaskList taskL = new TaskList("My First TaskList", tl);
+		
+		taskListRepo.save(taskL);
+		
+	}
+	
 	@CrossOrigin
 	@RequestMapping("/getListToDownload")
 	public String createListJson(@RequestParam(value = "id") long id){
 		
 		TaskList list = taskListRepo.findByid(id).get(0);
+		
+		Gson gson = new Gson();
 		
 		return new Gson().toJson(list);
 		
@@ -329,7 +364,7 @@ public class Controller {
 
 		List<String> tags = new ArrayList<String>();
 
-		Task newTask = new Task("Black", title, "Arial", false, tags, "low", "", subtasks);
+		Task newTask = new Task("Blue", title, "Arial", false, tags, "low", "", subtasks);
 
 		this.taskRepo.save(newTask);
 

@@ -39,6 +39,16 @@ public class Controller {
 	private final String JSON_EXTENSION = ".json";
 
 	@CrossOrigin
+	@RequestMapping("/getListToDownload")
+	public String createListJson(@RequestParam(value = "id") long id){
+		
+		TaskList list = taskListRepo.findByid(id).get(0);
+		
+		return new Gson().toJson(list);
+		
+	}
+	
+	@CrossOrigin
 	@RequestMapping("/testPSQL")
 	public void testCreateList() {
 
@@ -50,36 +60,6 @@ public class Controller {
 		System.out.println(id);
 		System.out.println(subTaskRepo.findByid(id).get(0).getTitle());
 
-		return;
-		// Subtask subT = new Subtask("Do Something", false);
-		//
-		// subTaskRepo.save(subT);
-		// System.out.println("Subtask Salva!");
-		//
-		// List<Subtask> stList = new ArrayList<Subtask>();
-		// stList.add(subT);
-		//
-		// List<String> tags = new ArrayList<String>();
-		//
-		// tags.add("Urgente");
-		// tags.add("Importante");
-		//
-		// Task aTask = new Task("", "My first Task", "", false, tags, "low", "a
-		// task", stList);
-		//
-		// taskRepo.save(aTask);
-		//
-		// System.out.println("Task Salva!");
-		//
-		// List<Task> taskList = new ArrayList<Task>();
-		//
-		// taskList.add(aTask);
-		//
-		// taskListRepo.save(new TaskList("My List",taskList));
-		//
-		//
-		// System.out.println("Lista criada !");
-
 	}
 
 	@CrossOrigin
@@ -89,25 +69,25 @@ public class Controller {
 
 		return new Gson().toJson(foundSTask.getTitle());
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/getSTChecked")
 	public String getSubtaskChecked(@RequestParam(value = "id") long id) {
-		
+
 		Subtask foundSTask = subTaskRepo.findByid(id).get(0);
 
 		return new Gson().toJson(foundSTask.isChecked());
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/changeSTChecked")
 	public void changeSubtaskChecked(@RequestParam(value = "id") long id,
 			@RequestParam(value = "checked") boolean checked) {
-		
+
 		Subtask foundSTask = subTaskRepo.findByid(id).get(0);
 
 		foundSTask.setChecked(checked);
-		
+
 		subTaskRepo.save(foundSTask);
 	}
 
@@ -246,14 +226,12 @@ public class Controller {
 		Task foundTask = taskRepo.findByid(id).get(0);
 
 		foundTask.setPriority(priority);
-		
-		if(priority.equals("low")){
+
+		if (priority.equals("low")) {
 			foundTask.setColor("Blue");
-		}
-		else if(priority.equals("medium")){
+		} else if (priority.equals("medium")) {
 			foundTask.setColor("Orange");
-		}
-		else if (priority.equals("high")){
+		} else if (priority.equals("high")) {
 			foundTask.setColor("Red");
 		}
 
@@ -282,88 +260,85 @@ public class Controller {
 		taskRepo.save(foundTask);
 
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/createST")
 	public String createSubtask(@RequestParam(value = "title") String title,
-			@RequestParam(value = "taskId")long taskId){
-		
+			@RequestParam(value = "taskId") long taskId) {
+
 		Subtask newSubtask = new Subtask(title, false);
-		
+
 		subTaskRepo.save(newSubtask);
-		
+
 		Task foundTask = taskRepo.findByid(taskId).get(0);
-		
+
 		foundTask.getSubtasks().add(newSubtask);
-		
+
 		taskRepo.save(foundTask);
-		
+
 		return new Gson().toJson(newSubtask.getId());
-		
+
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/delST")
-	public void deleteSubtask(@RequestParam(value = "id") long id){
-		
+	public void deleteSubtask(@RequestParam(value = "id") long id) {
+
 		Task itsTask;
-		
-		Subtask foundSubtask  = this.subTaskRepo.findByid(id).get(0);
-		
+
+		Subtask foundSubtask = this.subTaskRepo.findByid(id).get(0);
+
 		for (Task task : taskRepo.findAll()) {
-			
-			if(task.getSubtasks().contains(foundSubtask)){
-					itsTask = task;
-					itsTask.getSubtasks().remove(foundSubtask);
-					taskRepo.save(itsTask);
-					break;
+
+			if (task.getSubtasks().contains(foundSubtask)) {
+				itsTask = task;
+				itsTask.getSubtasks().remove(foundSubtask);
+				taskRepo.save(itsTask);
+				break;
 			}
-			
+
 		}
-		
+
 		subTaskRepo.delete(foundSubtask);
-		
+
 	}
-	
-	
+
 	@CrossOrigin
 	@RequestMapping("/removeTask")
-	public void removeTask(@RequestParam(value = "id") long id, 
-			@RequestParam(value = "taskId") long taskId){
-		
-		Task foundTask= this.taskRepo.findByid(taskId).get(0);
+	public void removeTask(@RequestParam(value = "id") long id, @RequestParam(value = "taskId") long taskId) {
+
+		Task foundTask = this.taskRepo.findByid(taskId).get(0);
 
 		TaskList foundTaskList = this.taskListRepo.findByid(id).get(0);
-		
+
 		foundTaskList.getTasks().remove(foundTask);
-		
+
 		taskRepo.delete(foundTask);
-		
+
 		taskListRepo.save(foundTaskList);
-		
+
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/createTask")
-	public String createTask(@RequestParam(value = "title") String title,
-			@RequestParam(value = "listId")long listId){
-		
+	public String createTask(@RequestParam(value = "title") String title, @RequestParam(value = "listId") long listId) {
+
 		TaskList taskList = taskListRepo.findByid(listId).get(0);
-		
-		 List<Subtask> subtasks = new ArrayList<Subtask>();
+
+		List<Subtask> subtasks = new ArrayList<Subtask>();
 
 		List<String> tags = new ArrayList<String>();
-		
+
 		Task newTask = new Task("Black", title, "Arial", false, tags, "low", "", subtasks);
-		
+
 		this.taskRepo.save(newTask);
-		
+
 		taskList.getTasks().add(newTask);
-		
+
 		taskListRepo.save(taskList);
-		
+
 		return new Gson().toJson(newTask.getId());
-		
+
 	}
 
 	@CrossOrigin
@@ -382,16 +357,15 @@ public class Controller {
 
 		return found.getTitle();
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/changeTLTitle")
-	public void getTaskListTitle(@RequestParam(value = "id") long id,
-			@RequestParam(value = "title")String title) {
+	public void getTaskListTitle(@RequestParam(value = "id") long id, @RequestParam(value = "title") String title) {
 
 		TaskList found = taskListRepo.findByid(id).get(0);
-		
+
 		found.setTitle(title);
-		
+
 		taskListRepo.save(found);
 
 	}
@@ -409,37 +383,26 @@ public class Controller {
 			taskIds.add(task.getId());
 
 		}
-		String opa = new Gson().toJson(taskIds );
-		
+		String opa = new Gson().toJson(taskIds);
+
 		return opa;
 
 	}
 
 	@CrossOrigin
 	@RequestMapping("/getListsID")
-	public String  getListsID() {
+	public String getListsID() {
 
 		List<Long> ids = new ArrayList<Long>();
-		
+
 		List<TaskList> taskLists = (List<TaskList>) taskListRepo.findAll();
-		
+
 		for (TaskList taskList : taskLists) {
-			
+
 			ids.add(taskList.getId());
-			
+
 		}
 
-//		File folder = new File("./");
-//		File[] listOfFiles = folder.listFiles();
-//
-//		for (File file : listOfFiles) {
-//			if (file.getName().contains("taskList")) {
-//				String listID = file.getName().replaceAll("taskList", "");
-//				listID = listID.replaceAll(".json", "");
-//				ids.add(listID);
-//			}
-//		}
-//
 		return new Gson().toJson(ids);
 
 	}
@@ -449,52 +412,47 @@ public class Controller {
 	public void deleteList(@RequestParam(value = "id") long id) {
 
 		TaskList toRemove = taskListRepo.findByid(id).get(0);
-				
+
 		taskListRepo.delete(toRemove);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping("/getCompletionRate")
 	public String getCompletionRatio() {
-		
+
 		List<Task> allTasks = (List<Task>) taskRepo.findAll();
-		
+
 		double amount = allTasks.size();
-		
-		double  completed = 0;
-		
-		
+
+		double completed = 0;
+
 		for (Task task : allTasks) {
-			
-			if(task.isCompleted()){
+
+			if (task.isCompleted()) {
 				completed++;
 			}
-			
+
 		}
-		
-		
-		if (amount == 0){
-			
+
+		if (amount == 0) {
+
 			return new Gson().toJson(amount);
 		}
 
-		
-		return new Gson().toJson(completed/amount);
+		return new Gson().toJson(completed / amount);
 
 	}
 
 	@CrossOrigin
-	@RequestMapping(value = "/createNewList")//, method = RequestMethod.POST)
-	public void createNewList(@RequestParam(value = "title")String title) { //throws ParseException, JsonProcessingException {
-		
-		List<Task> itsList  = new ArrayList<Task>();
-		
+	@RequestMapping(value = "/createNewList")
+	public void createNewList(@RequestParam(value = "title") String title) {
+
+		List<Task> itsList = new ArrayList<Task>();
+
 		TaskList newOne = new TaskList(title, itsList);
-		
-		
+
 		taskListRepo.save(newOne);
 	}
-		
 
 	@CrossOrigin
 	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
